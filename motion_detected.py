@@ -12,23 +12,10 @@ import time
 import json
 import os
 import sensor
+import add_sensor
 
 current_timestamp = lambda: int(round(time.time() * 1000))
 
-SENSORS_JSON = [
-	{
-		'name': 'camera01',
-		'sensor_type': 'camera',
-		'location': 'bedroom',
-		'image_path': '/home/pi/Monitor/lastsnap.jpg',
-	},
-	{
-		'name': 'magnet01',
-		'sensor_type': 'magnet_sensor',
-		'location': 'living room',
-		'image_path': None,
-	}
-]
 BASE_URL = 'localhost'
 DB_PORT = 5984
 DB_PATH = '/aid'	# don't forget the starting '/'
@@ -38,7 +25,8 @@ POST = 'POST'
 PUT = 'PUT'
 GET = 'GET'
 
-sensors = list(map(lambda s: sensor.create_sensor_from_json(s), SENSORS_JSON))
+sensors = list(map(lambda s: sensor.create_sensor_from_json(s), add_sensor.read_sensors_from_file()))
+
 
 
 def send_request(path, port, method, body=None, headers={}):
