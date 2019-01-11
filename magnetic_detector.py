@@ -7,9 +7,12 @@
 #  
 
 import RPi.GPIO as GPIO
+import time
 from motion_detected import motion_detected
 
 ReedPin = 11
+threshold = 5 # in seconds
+last_detection_time = -threshold
 
 def setup():
 	GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
@@ -18,10 +21,19 @@ def setup():
 
 
 def detect(chn):
+	global last_detection_time
 	reed = GPIO.input(ReedPin)
+	print('Door opened')
 	if reed == 1:
-		motion_detected('magnet01')
-		
+		detection_time = time.clock()
+		duration = detection_time - last_detection_time
+		if duration > threshold:
+			last_detection_time = detection_time
+			motion_detected('magnet01')
+		else:
+			print('Last detection was only ' + str(duration) + ' ago')
+			print('But threshold is ' + str(threshold) + ' seconds')
+
 
 
 if __name__ == '__main__':     # Program start from here
@@ -29,7 +41,7 @@ if __name__ == '__main__':     # Program start from here
 	try:
 		while True:
 			pass
-	except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program destroy() will be  executed.
+	except KeyboardInterrupt:
 		print('Exiting magnet.py...')
 	finally:
-		GPIO.cleanup()                    
+		GPIO.cleanup()

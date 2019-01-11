@@ -23,7 +23,7 @@ class PushyAPI:
 			return
 		with open(API_KEY_FILE) as f:
 			apiKey = f.readline().strip()
-7
+
 			# Default post data to provided options or empty object
 			postData = options
 			

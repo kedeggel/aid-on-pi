@@ -29,7 +29,8 @@ POST = 'POST'
 PUT = 'PUT'
 GET = 'GET'
 
-sensors = list(map(lambda s: sensor.create_sensor_from_json(s), add_sensor.read_sensors_from_file()))
+def get_sensors():
+	return list(map(lambda s: sensor.create_sensor_from_json(s), add_sensor.read_sensors_from_file()))
 
 
 def send_request(path, port, method, body=None, headers={}):
@@ -72,14 +73,14 @@ def take_snapshot(path):
 
 
 def get_sensor_by_name(name):
-	for s in sensors:
+	for s in get_sensors():
 		if s.name == name:
 			return s
 	return None
 
 
 def get_sensor_names():
-	return list(map(lambda s: s.name, sensors))
+	return list(map(lambda s: s.name, get_sensors()))
 
 
 def motion_detected(sensor_name):
@@ -88,7 +89,7 @@ def motion_detected(sensor_name):
 		print('\'{}\' is not a valid sensor.\nKnown sensors: {}'
 		.format(sensor_name, get_sensor_names()))
 		return
-	
+
 	print('+++ Sending push notification')
 	send_push('Motion detected by ' + sensor_name) 
 
@@ -99,21 +100,27 @@ def motion_detected(sensor_name):
 		linked_camera = get_sensor_by_name(sensor.linked_camera)
 		if linked_camera.snapshot_path is not None:
 			take_snapshot(linked_camera.snapshot_path)
-			print('Taking snapshot with ' + linked_camera.name)
+			print('+++ Taking snapshot with ' + linked_camera.name)
 
 	resp_data = add_detection_entry(sensor)
 
-	if sensor.image_path is not None:
-		if resp_data['ok']:
-			print('+++ Detection entry uploaded successfully +++')
+	if resp_data['ok']:
+		print('+++ Detection entry uploaded successfully +++')
+		if sensor.image_path is not None or linked_camera is not None:
 			id = resp_data['id']
 			rev = resp_data['rev']
-			att_resp = add_attachment(id, rev, sensor.image_path)
-			if att_resp and att_resp['ok']:
-				print('+++ Attachment uploaded successfully +++')
+			image_path = sensor.image_path
+			if sensor.image_path is None:
+				image_path = linked_camera.image_path
+			if image_path is not None:
+				att_resp = add_attachment(id, rev, image_path)
+				if att_resp and att_resp['ok']:
+					print('+++ Attachment uploaded successfully +++')
 
-		else:
-			print('Error while uploading detection entry!')
+			
+
+	else:
+		print('Error while uploading detection entry!')
 
 
 def send_push(message):
@@ -131,9 +138,7 @@ def send_push(message):
 
 def main(args):
 	if len(args) > 1:
-		#motion_detected(args[1])
-		send_push('Motion detected by ' ) 
-
+		motion_detected(args[1])
 	else:
 		print('usage: python motion_detected.py [sensor]')
 	return 0
