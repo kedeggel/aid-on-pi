@@ -1,6 +1,6 @@
 # project specifif
 sensors.conf
-
+pushy_api.key
 
 # python specific
 __pycache__/
