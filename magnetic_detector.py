@@ -9,6 +9,8 @@
 import RPi.GPIO as GPIO
 import time
 from motion_detected import motion_detected
+import os
+import sys
 
 ReedPin = 11
 threshold = 5 # in seconds
@@ -37,6 +39,7 @@ def detect(chn):
 
 
 if __name__ == '__main__':     # Program start from here
+	os.chdir(os.path.dirname(sys.argv[0]))		# Change cwd to script's path to find config files
 	setup()
 	try:
 		while True:

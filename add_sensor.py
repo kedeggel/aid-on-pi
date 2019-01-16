@@ -10,7 +10,7 @@ import sys
 import json
 import os.path
 
-CONF_FILE = 'sensors.conf'
+CONF_FILE = os.path.dirname(sys.argv[0]) + '/sensors.conf'
 
 NAME = 'name'
 SENSOR_TYPE = 'sensor_type'
@@ -118,6 +118,7 @@ def add_entry(sensor, key, name):
 def read_sensors_from_file():
 	sensors = []
 	if os.path.isfile(CONF_FILE):
+
 		with open(CONF_FILE) as f:
 			try:
 				sensors = json.load(f)

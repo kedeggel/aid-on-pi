@@ -10,8 +10,9 @@
 import json
 import requests
 import os
+import sys
 
-API_KEY_FILE = 'pushy_api.key'
+API_KEY_FILE = os.path.dirname(sys.argv[0]) + '/pushy_api.key'
 
 class PushyAPI:
 
